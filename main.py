@@ -1,21 +1,7 @@
-from src.repositories.cliente_repository import listar
-
+from src.views.menu_principal import menu_principal
 
 def main():
-    print("=== TechService - Sistema de Gestão de Assistência Técnica ===")
-
-    print("\nClientes ativos:")
-
-    clientes = listar()
-
-    for item in clientes:
-        print(
-            item["id_cliente"],
-            item["nome"],
-            item["email"],
-            item["telefone"]
-        )
-
+    menu_principal()
 
 if __name__ == "__main__":
     main()
