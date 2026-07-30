@@ -23,19 +23,23 @@ class ClienteView(ft.Container):
         self.txt_nome = ft.TextField(
             label="Nome *",
             hint_text="Nome completo",
+            on_submit=lambda e: self.txt_email.focus()
         )
 
         self.txt_email = ft.TextField(
             label="Email *",
             hint_text="email@empresa.pt",
+            on_submit=lambda e: self.txt_telefone.focus()
         )
 
         self.txt_telefone = ft.TextField(
             label="Telefone",
+            on_submit=lambda e: self.txt_nif.focus()
         )
 
         self.txt_nif = ft.TextField(
             label="NIF",
+            on_submit=lambda e: self.txt_morada.focus()
         )
 
         self.txt_morada = ft.TextField(
@@ -43,17 +47,26 @@ class ClienteView(ft.Container):
             multiline=True,
             min_lines=2,
             max_lines=3,
+            on_submit=lambda e: self.guardar_cliente()
         )
 
         self.txt_pesquisa = ft.TextField(
             hint_text="Pesquisar cliente...",
             prefix_icon=ft.Icons.SEARCH,
-            width=320,
+            width=300,
+            on_change=self.pesquisar_cliente,
         )
 
-        self.btn_novo = ft.FilledButton(
+        self.lbl_total = ft.Text(
+            "",
+            size=14,
+            color=ft.Colors.GREY_700,
+        )
+
+        self.btn_novo = ft.ElevatedButton(
             "Novo",
             icon=ft.Icons.ADD,
+            on_click=self.novo_cliente,
         )
 
         self.btn_guardar = ft.FilledButton(
@@ -160,6 +173,7 @@ class ClienteView(ft.Container):
 
                         ft.Text(
                             "Sistema TechService",
+                            self.lbl_total,
                             color=ft.Colors.GREY_700,
                         ),
                     ],
@@ -327,6 +341,8 @@ class ClienteView(ft.Container):
 
             print(f"Erro ao carregar clientes: {erro}")
 
+        self.lbl_total.value = f"Total de clientes: {len(clientes)}"
+
     def atualizar_tabela(self, e=None):
 
         self.carregar_clientes()
@@ -342,7 +358,6 @@ class ClienteView(ft.Container):
         self.txt_nif.value = ""
         self.txt_morada.value = ""
         self.cliente_selecionado = None
-        self.btn_guardar.disabled = False
         self.btn_editar.disabled = True
         self.btn_desativar.disabled = True
         self.btn_restaurar.disabled = True
@@ -351,10 +366,10 @@ class ClienteView(ft.Container):
 
     def novo_cliente(self, e=None):
 
-        self.cliente_selecionado = None
         self.limpar_formulario()
+
         self.txt_nome.focus()
-        
+
         self.update()
 
     def pesquisar(self, e):
@@ -382,6 +397,9 @@ class ClienteView(ft.Container):
         self.page.show_dialog(dialogo)
 
     def guardar_cliente(self, e=None):
+
+        if not self.validar_formulario():
+            return
 
         if self.txt_id.value:
 
@@ -538,3 +556,58 @@ class ClienteView(ft.Container):
         self.carregar_clientes()
 
         self.update()
+
+    def pesquisar_cliente(self, e):
+
+        texto = self.txt_pesquisa.value.strip()
+
+        self.tabela.rows.clear()
+
+        if texto == "":
+
+            self.carregar_clientes()
+
+            return
+
+        clientes = cliente_service.pesquisar_clientes(texto)
+
+        for cliente in clientes:
+
+            self.tabela.rows.append(
+
+                ft.DataRow(
+
+                    on_select_change=lambda e, c=cliente: self.selecionar_cliente(c),
+
+                    cells=[
+
+                        ft.DataCell(ft.Text(str(cliente["id_cliente"]))),
+                        ft.DataCell(ft.Text(cliente["nome"])),
+                        ft.DataCell(ft.Text(cliente["email"])),
+                        ft.DataCell(ft.Text(cliente["telefone"] or "")),
+                    ],
+                )
+            )
+
+        self.update()
+
+    def validar_formulario(self):
+
+        valido = True
+
+        self.txt_nome.error_text = None
+        self.txt_email.error_text = None
+
+        if not self.txt_nome.value.strip():
+
+            self.txt_nome.error_text = "O nome é obrigatório."
+            valido = False
+
+        if not self.txt_email.value.strip():
+
+            self.txt_email.error_text = "O email é obrigatório."
+            valido = False
+
+        self.update()
+
+        return valido

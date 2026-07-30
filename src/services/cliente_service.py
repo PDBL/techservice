@@ -51,3 +51,7 @@ def restaurar_cliente(id_cliente):
 def contar_clientes():
 
     return cliente_repository.contar()
+
+def pesquisar_clientes(texto):
+
+    return cliente_repository.procurar_por_nome(texto)
