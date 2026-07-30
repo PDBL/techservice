@@ -65,10 +65,11 @@ class ClienteView(ft.Container):
             icon=ft.Icons.CLEAR,
         )
 
-        self.btn_editar = ft.OutlinedButton(
+        self.btn_editar = ft.ElevatedButton(
             "Editar",
             icon=ft.Icons.EDIT,
             disabled=True,
+            on_click=self.editar_cliente,
         )
 
         self.btn_desativar = ft.OutlinedButton(
@@ -107,6 +108,8 @@ class ClienteView(ft.Container):
             ],
             rows=[],
         )
+
+        self.cliente_selecionado = None
 
         self.content = ft.Column(
             expand=True,
@@ -365,6 +368,10 @@ class ClienteView(ft.Container):
 
     def guardar_cliente(self, e=None):
 
+        if self.txt_id.value:
+
+            return self.editar_cliente(e)
+
         try:
 
             cliente_service.inserir_cliente(
@@ -389,9 +396,37 @@ class ClienteView(ft.Container):
                 ft.Colors.RED,
             )
 
-    def editar_cliente(self, e=None):
+        self.update()
 
-        print("Editar cliente")
+    def editar_cliente(self, e):
+
+        if self.cliente_selecionado is None:
+            return
+
+        try:
+
+            cliente_service.atualizar_cliente(
+
+                id_cliente=int(self.txt_id.value),
+                nome=self.txt_nome.value,
+                telefone=self.txt_telefone.value,
+                email=self.txt_email.value,
+                nif=self.txt_nif.value,
+                morada=self.txt_morada.value,
+            )
+
+            self.carregar_clientes()
+
+            self.mostrar_mensagem(
+                "Cliente atualizado com sucesso!"
+            )
+
+        except Exception as erro:
+
+            self.mostrar_mensagem(
+                str(erro),
+                ft.Colors.RED,
+            )
 
     def desativar_cliente(self, e=None):
 
@@ -414,6 +449,5 @@ class ClienteView(ft.Container):
 
         self.btn_editar.disabled = False
         self.btn_desativar.disabled = False
-        self.btn_restaurar.disabled = True
 
         self.update()
