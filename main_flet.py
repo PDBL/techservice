@@ -1,89 +1,83 @@
 import flet as ft
 
+from src.utils.theme import app_theme
 from src.flet_views.cliente_view import ClienteView
-from src.flet_views.equipamento_view import EquipamentoView
-from src.flet_views.ordem_view import OrdemView
-from src.flet_views.historico_view import HistoricoView
 
 def main(page: ft.Page):
 
     page.title = "TechService"
-    page.window.width = 1400
-    page.window.height = 800
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.padding = 0
-    page.bgcolor = ft.Colors.GREY_100
-    page.window.center()
 
-    conteudo = ft.Container(
-        expand=True
+    page.theme = app_theme()
+    page.theme_mode = ft.ThemeMode.LIGHT
+
+    page.window.width = 1400
+    page.window.height = 850
+
+    page.padding = 0
+
+    page.bgcolor = ft.Colors.GREY_100
+
+    area_trabalho = ft.Container(
+        expand=True,
+        bgcolor=ft.Colors.WHITE,
+        padding=20,
+        content=ClienteView(),
     )
 
-    def mudar_pagina(e):
+    def selecionar_menu(e):
 
-        indice = e.control.selected_index
+        indice = menu.selected_index
 
         if indice == 0:
-            conteudo.content = ClienteView(page)
+            area_trabalho.content = ClienteView()
 
-        elif indice == 1:
-            conteudo.content = EquipamentoView(page)
-
-        elif indice == 2:
-            conteudo.content = OrdemView(page)
-
-        elif indice == 3:
-            conteudo.content = HistoricoView(page)
+        else:
+            area_trabalho.content = ft.Column(
+                controls=[
+                    ft.Text(
+                        "Em desenvolvimento",
+                        size=28,
+                        weight=ft.FontWeight.BOLD,
+                    )
+                ]
+            )
 
         page.update()
 
-    navigation = ft.NavigationRail(
-
+    menu = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.ALL,
         min_width=90,
-        min_extended_width=200,
-
-        leading=ft.Icon(
-            ft.Icons.COMPUTER,
-            size=40
-        ),
-
+        min_extended_width=180,
         destinations=[
-
             ft.NavigationRailDestination(
                 icon=ft.Icons.PERSON,
-                label="Clientes"
+                label="Clientes",
             ),
-
             ft.NavigationRailDestination(
-                icon=ft.Icons.LAPTOP,
-                label="Equipamentos"
+                icon=ft.Icons.COMPUTER,
+                label="Equipamentos",
             ),
-
             ft.NavigationRailDestination(
                 icon=ft.Icons.BUILD,
-                label="Ordens"
+                label="Ordens",
             ),
-
             ft.NavigationRailDestination(
                 icon=ft.Icons.HISTORY,
-                label="Histórico"
+                label="Histórico",
             ),
         ],
-        on_change=mudar_pagina
+        on_change=selecionar_menu,
     )
-
-    conteudo.content = ClienteView(page)
 
     page.add(
         ft.Row(
-            [
-                navigation,
+            expand=True,
+            controls=[
+                menu,
                 ft.VerticalDivider(width=1),
-                conteudo
+                area_trabalho,
             ],
-            expand=True
         )
     )
 
