@@ -1,16 +1,11 @@
 from src.models.cliente import Cliente
 from src.repositories import cliente_repository
+from src.utils.validacoes import validar_texto_obrigatorio
 
 def inserir_cliente(nome, telefone, email, nif, morada):
 
-    nome = nome.strip()
-    email = email.strip()
-
-    if not nome:
-        raise ValueError("O nome é obrigatório.")
-
-    if not email:
-        raise ValueError("O email é obrigatório.")
+    validar_texto_obrigatorio(nome, "Nome")
+    validar_texto_obrigatorio(email, "Email")
 
     cliente = Cliente(nome=nome, telefone=telefone, email=email, nif=nif, morada=morada)
 
