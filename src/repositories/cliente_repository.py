@@ -37,6 +37,25 @@ def listar():
     conexao.close()
     return clientes
 
+def listar_inativos():
+    conexao = conectar()
+    cursor = conexao.cursor(dictionary=True)
+
+    sql = """
+        SELECT id_cliente, nome, telefone, email, nif,
+               morada, status, created_at, updated_at, deleted_at
+        FROM clientes
+        WHERE status = 0
+        ORDER BY nome
+    """
+
+    cursor.execute(sql)
+    clientes = cursor.fetchall()
+
+    cursor.close()
+    conexao.close()
+    return clientes
+
 def procurar_por_id(id_cliente):
 
     conexao = conectar()

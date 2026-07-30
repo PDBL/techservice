@@ -12,6 +12,7 @@ class ClienteView(ft.Container):
         self.padding = 20
 
         self.cliente_selecionado = None
+        self.mostrar_inativos = False
 
         self.txt_id = ft.TextField(
             label="ID",
@@ -72,10 +73,11 @@ class ClienteView(ft.Container):
             on_click=self.editar_cliente,
         )
 
-        self.btn_desativar = ft.OutlinedButton(
+        self.btn_desativar = ft.ElevatedButton(
             "Desativar",
             icon=ft.Icons.DELETE,
             disabled=True,
+            on_click=self.confirmar_desativacao,
         )
 
         self.btn_restaurar = ft.OutlinedButton(
@@ -87,6 +89,12 @@ class ClienteView(ft.Container):
         self.btn_atualizar = ft.IconButton(
             icon=ft.Icons.REFRESH,
             tooltip="Atualizar lista",
+        )
+
+        self.btn_inativos = ft.ElevatedButton(
+            "Mostrar Inativos",
+            icon=ft.Icons.VISIBILITY,
+            on_click=self.alternar_clientes,
         )
 
         self.btn_novo.on_click = self.novo_cliente
@@ -162,6 +170,7 @@ class ClienteView(ft.Container):
                     controls=[
 
                         self.txt_pesquisa,
+                        self.btn_inativos,
                         self.btn_atualizar,
                         self.btn_novo,
                     ],
@@ -284,7 +293,13 @@ class ClienteView(ft.Container):
 
         try:
 
-            clientes = cliente_service.listar_clientes()
+            if self.mostrar_inativos:
+
+                clientes = cliente_service.listar_clientes_inativos()
+
+            else:
+
+                clientes = cliente_service.listar_clientes()
 
             for cliente in clientes:
 
@@ -428,9 +443,53 @@ class ClienteView(ft.Container):
                 ft.Colors.RED,
             )
 
-    def desativar_cliente(self, e=None):
+    def desativar_cliente(self, e):
 
-        print("Desativar cliente")
+        self.page.pop_dialog()
+
+        try:
+
+            cliente_service.desativar_cliente(
+                int(self.txt_id.value)
+            )
+
+            self.limpar_formulario()
+            self.carregar_clientes()
+            self.mostrar_mensagem(
+                "Cliente desativado com sucesso!"
+            )
+
+        except Exception as erro:
+
+            self.mostrar_mensagem(
+                str(erro),
+                ft.Colors.RED,
+            )
+
+    def confirmar_desativacao(self, e):
+
+        if self.cliente_selecionado is None:
+            return
+
+        dialogo = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Confirmar"),
+            content=ft.Text(
+                f"Tem a certeza que pretende desativar o cliente '{self.txt_nome.value}'?"
+            ),
+            actions=[
+                ft.TextButton(
+                    "Cancelar",
+                    on_click=lambda e: self.page.pop_dialog(),
+                ),
+                ft.ElevatedButton(
+                    "Desativar",
+                    on_click=self.desativar_cliente,
+                ),
+            ],
+        )
+
+        self.page.show_dialog(dialogo)
 
     def restaurar_cliente(self, e=None):
 
@@ -449,5 +508,33 @@ class ClienteView(ft.Container):
 
         self.btn_editar.disabled = False
         self.btn_desativar.disabled = False
+
+        if self.mostrar_inativos:
+
+            self.btn_editar.disabled = True
+            self.btn_desativar.disabled = True
+            self.btn_restaurar.disabled = False
+
+        else:
+
+            self.btn_editar.disabled = False
+            self.btn_desativar.disabled = False
+            self.btn_restaurar.disabled = True
+
+        self.update()
+
+    def alternar_clientes(self, e):
+
+        self.mostrar_inativos = not self.mostrar_inativos
+
+        if self.mostrar_inativos:
+
+            self.btn_inativos.text = "Mostrar Ativos"
+
+        else:
+
+            self.btn_inativos.text = "Mostrar Inativos"
+
+        self.carregar_clientes()
 
         self.update()

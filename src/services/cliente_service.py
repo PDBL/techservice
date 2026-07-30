@@ -16,6 +16,10 @@ def listar_clientes():
 
     return cliente_repository.listar()
 
+def listar_clientes_inativos():
+
+    return cliente_repository.listar_inativos()
+
 
 def procurar_cliente_id(id_cliente):
 
