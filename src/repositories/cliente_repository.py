@@ -135,3 +135,23 @@ def contar():
     cursor.close()
     conexao.close()
     return total
+
+def restaurar(id_cliente):
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    sql = """
+        UPDATE clientes
+        SET
+            status = 1,
+            deleted_at = NULL,
+            updated_at = NOW()
+        WHERE id_cliente = %s
+    """
+
+    cursor.execute(sql, (id_cliente,))
+    conexao.commit()
+
+    cursor.close()
+    conexao.close()
