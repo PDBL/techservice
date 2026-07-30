@@ -3,6 +3,15 @@ from src.repositories import cliente_repository
 
 def inserir_cliente(nome, telefone, email, nif, morada):
 
+    nome = nome.strip()
+    email = email.strip()
+
+    if not nome:
+        raise ValueError("O nome é obrigatório.")
+
+    if not email:
+        raise ValueError("O email é obrigatório.")
+
     cliente = Cliente(nome=nome, telefone=telefone, email=email, nif=nif, morada=morada)
 
     return cliente_repository.inserir(cliente)

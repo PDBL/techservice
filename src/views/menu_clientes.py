@@ -27,9 +27,14 @@ def menu_clientes():
             nif = input("NIF: ")
             morada = input("Morada: ")
 
-            inserir_cliente(nome, telefone, email, nif, morada)
+            try:
+                inserir_cliente(nome, telefone, email, nif, morada)
 
-            print("\nCliente inserido com sucesso.")
+                print("\nCliente inserido com sucesso.")
+
+            except ValueError as erro:
+
+                print(f"\nErro: {erro}")
 
             pausa()
 
